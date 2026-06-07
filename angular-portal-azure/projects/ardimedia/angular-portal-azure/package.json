@@ -1,9 +1,10 @@
 {
   "name": "@ardimedia/angular-portal-azure",
-  "version": "0.3.26",
+  "version": "0.3.27",
   "peerDependencies": {
     "@angular/common": "^21.1.0",
-    "@angular/core": "^21.1.0"
+    "@angular/core": "^21.1.0",
+    "@angular/forms": "^21.1.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

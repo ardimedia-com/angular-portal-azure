@@ -42,6 +42,9 @@ export interface PortalLabels {
   settings: string;
   language: string;
   appearance: string;
+
+  // Unsaved-changes guard
+  unsavedChangesConfirm: string;
 }
 
 /** Language preset definition for the built-in language registry. */
@@ -79,6 +82,7 @@ export const LABELS_DE_CH: PortalLabels = {
   settings: 'Einstellungen',
   language: 'Sprache',
   appearance: 'Darstellung',
+  unsavedChangesConfirm: 'Die Änderungen wurden noch nicht gespeichert. Trotzdem verlassen?',
 };
 
 /** German (Germany) — Swiss spelling rules apply (no ß) */
@@ -110,6 +114,7 @@ export const LABELS_EN: PortalLabels = {
   settings: 'Settings',
   language: 'Language',
   appearance: 'Appearance',
+  unsavedChangesConfirm: 'You have unsaved changes. Leave anyway?',
 };
 
 /** French */
@@ -138,6 +143,7 @@ export const LABELS_FR: PortalLabels = {
   settings: 'Paramètres',
   language: 'Langue',
   appearance: 'Apparence',
+  unsavedChangesConfirm: 'Les modifications n\'ont pas été enregistrées. Quitter quand même ?',
 };
 
 /** Spanish */
@@ -166,6 +172,7 @@ export const LABELS_ES: PortalLabels = {
   settings: 'Configuración',
   language: 'Idioma',
   appearance: 'Apariencia',
+  unsavedChangesConfirm: 'Hay cambios sin guardar. ¿Salir de todos modos?',
 };
 
 /** Italian */
@@ -194,6 +201,7 @@ export const LABELS_IT: PortalLabels = {
   settings: 'Impostazioni',
   language: 'Lingua',
   appearance: 'Aspetto',
+  unsavedChangesConfirm: 'Le modifiche non sono state salvate. Uscire comunque?',
 };
 
 // ── Language preset registry ────────────────────────────────────────

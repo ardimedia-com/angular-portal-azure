@@ -1,7 +1,9 @@
-import { Component, input } from '@angular/core';
+import { AfterContentInit, Component, OnDestroy, contentChild, inject, input } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { BladeDataDefinition } from '../../models/blade-data.model';
 import { BladeCommand, createCommand } from '../../models/blade-command.model';
 import { PortalLabels, DEFAULT_LABELS } from '../../models/portal-labels.model';
+import { BladeService } from '../../services/blade.service';
 
 /**
  * Detail/edit blade content — renders a form area for editing an item.
@@ -35,8 +37,36 @@ import { PortalLabels, DEFAULT_LABELS } from '../../models/portal-labels.model';
     </div>
   `,
 })
-export class BladeDetailComponent {
+export class BladeDetailComponent implements AfterContentInit, OnDestroy {
   readonly blade = input.required<BladeDataDefinition<any>>();
+
+  private readonly bladeService = inject(BladeService);
+
+  /** The template-driven form projected into this detail, if any (auto-discovered). */
+  private readonly form = contentChild(NgForm, { descendants: true });
+
+  ngAfterContentInit(): void {
+    const blade = this.blade();
+    const isDirty = (): boolean => this.form()?.dirty ?? false;
+
+    // Expose on the lifecycle (for consumers) and register with the BladeService so navigation
+    // away from a dirty blade prompts for confirmation. No per-detail wiring needed — every
+    // detail that projects a <form> is guarded automatically.
+    blade.lifecycle.isDirty = isDirty;
+    this.bladeService.registerDirtyCheck(blade.path, isDirty);
+
+    // After a successful save, reset the form to pristine so the guard does not fire on a
+    // saved-but-not-yet-navigated blade. Wrap (don't replace) any existing onSavedItem hook.
+    const originalOnSaved = blade.lifecycle.onSavedItem;
+    blade.lifecycle.onSavedItem = (): void => {
+      this.form()?.form.markAsPristine();
+      originalOnSaved?.();
+    };
+  }
+
+  ngOnDestroy(): void {
+    this.bladeService.unregisterDirtyCheck(this.blade().path);
+  }
 }
 
 /**

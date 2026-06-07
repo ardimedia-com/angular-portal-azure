@@ -54,6 +54,11 @@ export interface BladeDataLifecycle<T> {
 
   // Form validation
   isFormValid?: () => boolean;
+
+  // Unsaved-changes guard. Return true if the blade has unsaved edits; the BladeService then
+  // asks for confirmation before this blade is closed/replaced or the page is left.
+  // apa-blade-detail wires this automatically from the projected <form> (NgForm.dirty).
+  isDirty?: () => boolean;
 }
 
 /**
