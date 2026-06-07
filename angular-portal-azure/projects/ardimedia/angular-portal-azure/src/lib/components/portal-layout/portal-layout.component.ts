@@ -2,6 +2,7 @@ import { Component, inject, signal, ElementRef, afterNextRender, effect, Injecto
 import { DOCUMENT } from '@angular/common';
 import { PortalService } from '../../services/portal.service';
 import { getUserDisplayName } from '../../models/user-account.model';
+import { AvatarMenuItem } from '../../models/avatar-menu.model';
 import { LANGUAGE_PRESETS, LanguagePreset } from '../../models/portal-labels.model';
 
 /**
@@ -87,8 +88,9 @@ import { LANGUAGE_PRESETS, LanguagePreset } from '../../models/portal-labels.mod
             </a>
             @if (portal.avatarMenu().isOpen && portal.avatarMenu().items.length > 0) {
               <div class="apa-avatar-dropdown" role="menu">
-                @for (item of portal.avatarMenu().items; track item.href) {
-                  <a class="apa-avatar-dropdown-item" role="menuitem" [href]="item.href">
+                @for (item of portal.avatarMenu().items; track item.label) {
+                  <a class="apa-avatar-dropdown-item" role="menuitem" [href]="item.href"
+                     (click)="onAvatarItemClick(item, $event)">
                     @if (item.icon) {
                       <i [class]="item.icon" aria-hidden="true"></i>
                     }
@@ -122,6 +124,18 @@ export class PortalLayoutComponent {
   /** Available languages from the preset registry */
   protected readonly availableLanguages: { code: string; displayName: string }[] =
     Array.from(LANGUAGE_PRESETS.values()).map((p) => ({ code: p.code, displayName: p.displayName }));
+
+  /**
+   * Handle an avatar dropdown item click. If the item defines an action (e.g. open a blade), run it
+   * and suppress the default link navigation; otherwise let the href navigate normally.
+   */
+  protected onAvatarItemClick(item: AvatarMenuItem, event: Event): void {
+    this.portal.closeAvatarMenu();
+    if (item.action) {
+      event.preventDefault();
+      item.action();
+    }
+  }
 
   constructor() {
     const stored = localStorage.getItem(PortalLayoutComponent.STORAGE_KEY);
