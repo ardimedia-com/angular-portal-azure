@@ -162,16 +162,29 @@ export async function executeLoadItems<T>(
 }
 
 /**
+ * Blades with a save or delete in flight. A second call for the same blade while one runs is ignored: a double
+ * click on Save/Delete would otherwise send the request twice (duplicate insert, concurrency failure).
+ */
+const operationsInFlight = new WeakSet<object>();
+
+/**
  * Execute a save-item operation with lifecycle hooks and status bar updates.
+ * Refuses (with a status-bar message) when the blade's form is invalid, and ignores a second call while a save or
+ * delete of the same blade is still running.
  */
 export async function executeSaveItem<T>(
   blade: BladeDataDefinition<T>,
   saveFn: () => Promise<T>,
   labels: PortalLabels = DEFAULT_LABELS,
 ): Promise<T | void> {
-  if (blade.lifecycle.isFormValid && !blade.lifecycle.isFormValid()) {
+  if (operationsInFlight.has(blade)) {
     return;
   }
+  if (blade.lifecycle.isFormValid && !blade.lifecycle.isFormValid()) {
+    blade.statusBar = statusBarError(labels.formInvalid);
+    return;
+  }
+  operationsInFlight.add(blade);
   blade.lifecycle.onSaveItem?.();
   blade.statusBar = statusBarInfo(labels.saving);
   try {
@@ -183,6 +196,8 @@ export async function executeSaveItem<T>(
   } catch (ex) {
     blade.statusBar = statusBarError((ex as ApiException).message || labels.saveError);
     blade.lifecycle.onSaveItemError?.(ex as ApiException);
+  } finally {
+    operationsInFlight.delete(blade);
   }
 }
 
@@ -195,6 +210,10 @@ export async function executeDeleteItem<T>(
   deleteFn: () => Promise<void>,
   labels: PortalLabels = DEFAULT_LABELS,
 ): Promise<boolean> {
+  if (operationsInFlight.has(blade)) {
+    return false;
+  }
+  operationsInFlight.add(blade);
   blade.lifecycle.onDeleteItem?.();
   blade.statusBar = statusBarInfo(labels.deleting);
   try {
@@ -206,5 +225,7 @@ export async function executeDeleteItem<T>(
     blade.statusBar = statusBarError((ex as ApiException).message || labels.deleteError);
     blade.lifecycle.onDeleteItemError?.(ex as ApiException);
     return false;
+  } finally {
+    operationsInFlight.delete(blade);
   }
 }

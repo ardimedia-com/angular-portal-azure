@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 import { BladeCommand } from '../../models/blade-command.model';
 
 /**
@@ -23,9 +23,9 @@ import { BladeCommand } from '../../models/blade-command.model';
           <li role="listitem">
             <a class="fxs-commandBar-item"
                role="button"
-               [tabindex]="cmd.enabled ? 0 : -1"
-               [class.apa-disable-click]="!cmd.enabled"
-               [attr.aria-disabled]="!cmd.enabled"
+               [tabindex]="cmd.enabled && !isRunning(cmd) ? 0 : -1"
+               [class.apa-disable-click]="!cmd.enabled || isRunning(cmd)"
+               [attr.aria-disabled]="!cmd.enabled || isRunning(cmd)"
                [attr.aria-label]="cmd.label"
                (click)="onCommand(cmd)"
                (keydown.enter)="onCommand(cmd)"
@@ -50,12 +50,28 @@ export class CommandBarComponent {
     return this.commands().filter((c) => c.visible);
   }
 
+  /** Keys of commands whose async action is still running; a second click on them is ignored. */
+  private readonly running = signal<ReadonlySet<string>>(new Set());
+
+  isRunning(cmd: BladeCommand): boolean {
+    return this.running().has(cmd.key);
+  }
+
   onCommand(cmd: BladeCommand): void {
-    if (cmd.enabled && cmd.action) {
-      const result = cmd.action();
-      if (result instanceof Promise) {
-        result.catch((err) => console.error(`[CommandBar] Command "${cmd.key}" failed:`, err));
-      }
+    if (!cmd.enabled || !cmd.action || this.isRunning(cmd)) {
+      return;
+    }
+    const result = cmd.action();
+    if (result instanceof Promise) {
+      // Double-click guard: an async command (save, order, create ...) runs at most once at a time.
+      this.running.update((keys) => new Set(keys).add(cmd.key));
+      result
+        .catch((err) => console.error(`[CommandBar] Command "${cmd.key}" failed:`, err))
+        .finally(() => this.running.update((keys) => {
+          const next = new Set(keys);
+          next.delete(cmd.key);
+          return next;
+        }));
     }
   }
 }

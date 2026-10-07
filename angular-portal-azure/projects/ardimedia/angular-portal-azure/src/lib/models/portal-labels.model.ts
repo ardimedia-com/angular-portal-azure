@@ -12,6 +12,8 @@ export interface PortalLabels {
   loadError: string;
   saveError: string;
   deleteError: string;
+  /** Shown when a save is refused because the blade's form is invalid (required fields etc.). */
+  formInvalid: string;
 
   // Command bar buttons
   cmdNew: string;
@@ -66,6 +68,7 @@ export const LABELS_DE_CH: PortalLabels = {
   loadError: 'Fehler beim Laden',
   saveError: 'Fehler beim Speichern',
   deleteError: 'Fehler beim Löschen',
+  formInvalid: 'Bitte die markierten Felder korrekt ausfüllen, dann nochmals speichern.',
   cmdNew: 'Neu',
   cmdSave: 'Speichern',
   cmdDelete: 'Löschen',
@@ -98,6 +101,7 @@ export const LABELS_EN: PortalLabels = {
   loadError: 'Error loading data',
   saveError: 'Error saving data',
   deleteError: 'Error deleting data',
+  formInvalid: 'Please complete the highlighted fields, then save again.',
   cmdNew: 'New',
   cmdSave: 'Save',
   cmdDelete: 'Delete',
@@ -127,6 +131,7 @@ export const LABELS_FR: PortalLabels = {
   loadError: 'Erreur lors du chargement',
   saveError: 'Erreur lors de l\'enregistrement',
   deleteError: 'Erreur lors de la suppression',
+  formInvalid: 'Veuillez compléter les champs marqués, puis enregistrer à nouveau.',
   cmdNew: 'Nouveau',
   cmdSave: 'Enregistrer',
   cmdDelete: 'Supprimer',
@@ -156,6 +161,7 @@ export const LABELS_ES: PortalLabels = {
   loadError: 'Error al cargar',
   saveError: 'Error al guardar',
   deleteError: 'Error al eliminar',
+  formInvalid: 'Complete los campos marcados y vuelva a guardar.',
   cmdNew: 'Nuevo',
   cmdSave: 'Guardar',
   cmdDelete: 'Eliminar',
@@ -185,6 +191,7 @@ export const LABELS_IT: PortalLabels = {
   loadError: 'Errore durante il caricamento',
   saveError: 'Errore durante il salvataggio',
   deleteError: 'Errore durante l\'eliminazione',
+  formInvalid: 'Completare i campi evidenziati, poi salvare di nuovo.',
   cmdNew: 'Nuovo',
   cmdSave: 'Salva',
   cmdDelete: 'Elimina',

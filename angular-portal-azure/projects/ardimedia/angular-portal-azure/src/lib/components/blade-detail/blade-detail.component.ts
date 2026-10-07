@@ -55,6 +55,20 @@ export class BladeDetailComponent implements AfterContentInit, OnDestroy {
     blade.lifecycle.isDirty = isDirty;
     this.bladeService.registerDirtyCheck(blade.path, isDirty);
 
+    // Enforce the form's own validators (required, min, max, pattern ...) on save. Without this, executeSaveItem
+    // saved invalid data, because no blade wired isFormValid by hand. Invalid controls are marked touched so the
+    // form can highlight them. A consumer-supplied predicate wins.
+    if (!blade.lifecycle.isFormValid) {
+      blade.lifecycle.isFormValid = (): boolean => {
+        const form = this.form();
+        if (!form || form.valid) {
+          return true;
+        }
+        form.form.markAllAsTouched();
+        return false;
+      };
+    }
+
     // After a successful save, reset the form to pristine so the guard does not fire on a
     // saved-but-not-yet-navigated blade. Wrap (don't replace) any existing onSavedItem hook.
     const originalOnSaved = blade.lifecycle.onSavedItem;
