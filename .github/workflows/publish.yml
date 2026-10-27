@@ -5,8 +5,11 @@ on:
     tags:
       - 'v*'
 
+# npm trusted publishing (OIDC): no NPM_TOKEN secret. The package's Trusted Publisher on npmjs.com must name
+# ardimedia-com/angular-portal-azure and this file (publish.yml), otherwise npm answers with a misleading E404.
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   build-and-publish:
@@ -34,8 +37,10 @@ jobs:
       - name: Build demo app
         run: npx ng build angular-portal-azure
 
+      # Only now: npm ci above stays on the bundled npm 10 that generated package-lock.json.
+      - name: Update npm (trusted publishing needs npm 11.5.1 or newer)
+        run: npm install -g npm@^11.5.1
+
       - name: Publish to npm
         run: npm publish --access public
         working-directory: angular-portal-azure/dist/ardimedia/angular-portal-azure
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

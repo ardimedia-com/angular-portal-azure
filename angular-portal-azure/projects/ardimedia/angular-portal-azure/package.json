@@ -1,6 +1,11 @@
 {
   "name": "@ardimedia/angular-portal-azure",
   "version": "0.3.29",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ardimedia-com/angular-portal-azure.git",
+    "directory": "angular-portal-azure/projects/ardimedia/angular-portal-azure"
+  },
   "peerDependencies": {
     "@angular/common": "^21.1.0",
     "@angular/core": "^21.1.0",
